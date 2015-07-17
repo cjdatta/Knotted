@@ -37,9 +37,12 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
     }
 */
 
+    private final int bmpW = 300;
+    private final int bmpH = 225;
+
     private ImageView mCrossView, mIdenView, mSwapView;
-    private ArrayList<ImageView> viewList = new ArrayList<ImageView>();
-    private ImageView myImgView;
+    private ArrayList<KnotView> viewList = new ArrayList<KnotView>();
+    private KnotView myImgView;
     private OpenGLES20Activity parent = this;
     private ViewGroup mRrootLayout;
     private int xDelta;
@@ -69,7 +72,12 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    myImgView = new ImageView(parent);
+
+                    int[] basic = new int[2];
+                    basic[0] = 75;
+                    basic[1] = 150;
+
+                    myImgView = new KnotView(parent, basic, basic, "C");
                     myImgView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     myImgView.setOnTouchListener(parent);
@@ -85,13 +93,17 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
                                     R.drawable.swap, 30, 30).getHeight()));
                                     */
                     myImgView.setImageBitmap(BitmapTools.decodeSampledBitmapFromResource(getResources(),
-                            R.drawable.cross, 30, 30));
+                            R.drawable.cross, 50, 50));
                     RelativeLayout rl = (RelativeLayout) (findViewById(R.id.root));
                     rl.addView(myImgView);
                     myImgView.setX(500);
                     myImgView.setY(500);
                     viewList.add(myImgView);
                     Log.d("this", ": " + viewList.size());
+                    Log.d("MEASURE", "" + BitmapTools.decodeSampledBitmapFromResource(getResources(),
+                            R.drawable.cross, 50, 50).getHeight());
+                    Log.d("MEASURE", "" + BitmapTools.decodeSampledBitmapFromResource(getResources(),
+                            R.drawable.cross, 50, 50).getWidth());
                 }
                 return true;
             }
@@ -101,11 +113,15 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    myImgView = new ImageView(parent);
-                    myImgView.setLayoutParams(new RelativeLayout.LayoutParams(150, 150));
+                    int[] basic = new int[1];
+                    basic[0] = 112;
+
+                    myImgView = new KnotView(parent, basic, basic, "I");
+                    myImgView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
                     myImgView.setOnTouchListener(parent);
                     myImgView.setImageBitmap(BitmapTools.decodeSampledBitmapFromResource(getResources(),
-                            R.drawable.identity, 30, 30));
+                            R.drawable.identity, 50, 50));
                     ((RelativeLayout)(findViewById(R.id.root))).addView(myImgView);
                     myImgView.setX(500);
                     myImgView.setY(500);
@@ -121,11 +137,16 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    myImgView = new ImageView(parent);
-                    myImgView.setLayoutParams(new RelativeLayout.LayoutParams(150, 150));
+                    int[] basic = new int[2];
+                    basic[0] = 75;
+                    basic[1] = 150;
+
+                    myImgView = new KnotView(parent, basic, new int[0], "S");
+                    myImgView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
                     myImgView.setOnTouchListener(parent);
                     myImgView.setImageBitmap(BitmapTools.decodeSampledBitmapFromResource(getResources(),
-                            R.drawable.swap, 30, 30));
+                            R.drawable.swap, 50, 50));
                     ((RelativeLayout)(findViewById(R.id.root))).addView(myImgView);
                     myImgView.setX(500);
                     myImgView.setY(500);
@@ -140,7 +161,7 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
     }
 
     public boolean onTouch(View view, MotionEvent event) {
-        ImageView currentImage = (ImageView)view;
+        KnotView currentImage = (KnotView)view;
 
         Rect rc1 = new Rect();
         view.getHitRect(rc1);
@@ -156,32 +177,103 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
                 break;
             case MotionEvent.ACTION_UP:
                 //check collisions
-
                 Rect rc2 = new Rect();
+
                 for( int i = 0; i < viewList.size(); i++){
                     viewList.get(i).getHitRect(rc2);
                     //check through list for possible collisions
                     if(!viewList.get(i).equals(view) && Rect.intersects(rc1, rc2)){
                         Log.d("TAG", "INTERSECT");
-                        //do stuff
-                        myImgView = new ImageView(parent);
-                        myImgView.setLayoutParams(new RelativeLayout.LayoutParams(150, 150));
-                        myImgView.setOnTouchListener(parent);
 
-                        BitmapDrawable bitmapDrawable = ((BitmapDrawable) ((ImageView) view).getDrawable());
+                        BitmapDrawable bitmapDrawable = ((BitmapDrawable) currentImage.getDrawable());
                         Bitmap bitmapFirst = bitmapDrawable.getBitmap();
 
                         bitmapDrawable = ((BitmapDrawable)viewList.get(i).getDrawable());
                         Bitmap bitmapSecond = bitmapDrawable.getBitmap();
 
-                        Bitmap bitmapFinal = BitmapTools.combineImagesHorizontal(bitmapFirst, bitmapSecond);
+                        /*
+                        Check collision location; to make sure combination happens correctly
+                         */
 
-                        myImgView.setImageBitmap(Bitmap.createScaledBitmap(bitmapFinal, 50, 50, false));
+                        Bitmap bitmapFinal = null;
+                        int[] newCardR = null;
+                        int[] newCardL = null;
+
+
+
+                        if(checkCollisionLoc(currentImage, viewList.get(i)) == 1){
+
+                            if(currentImage.getCardR().length == viewList.get(i).getCardL().length){
+                                Log.d("HERE", "Equal cards");
+
+                                Bitmap bitmapInterstitial;
+                                bitmapFinal = BitmapTools.combineImagesHorizontal(BitmapTools.combineImagesHorizontal(
+                                        bitmapFirst, BitmapTools.drawBeziers(currentImage.getCardR(), viewList.get(i).getCardL(), bmpH)
+                                ), bitmapSecond);
+
+                                newCardR = viewList.get(i).getCardR();
+                                newCardL = currentImage.getCardL();
+                            } else {
+                                //reset position
+                                bitmapFinal = BitmapTools.combineImagesHorizontal(bitmapFirst, bitmapSecond);
+                            }
+
+                        }
+
+                        if(checkCollisionLoc(currentImage, viewList.get(i)) == 2){
+
+                            bitmapFinal = BitmapTools.combineImagesVertical(bitmapSecond, bitmapFirst);
+
+                            newCardR = concat(currentImage.getCardR(), viewList.get(i).getCardR());
+                            newCardL = concat(currentImage.getCardL(), viewList.get(i).getCardL());
+
+                        }
+
+                        if(checkCollisionLoc(currentImage, viewList.get(i)) == 3){
+
+                            bitmapFinal = BitmapTools.combineImagesHorizontal(bitmapSecond, bitmapFirst);
+
+                            newCardL = viewList.get(i).getCardL();
+                            newCardR = currentImage.getCardR();
+
+                        }
+
+                        if(checkCollisionLoc(currentImage, viewList.get(i)) == 4){
+
+                            bitmapFinal = BitmapTools.combineImagesVertical(bitmapFirst, bitmapSecond);
+
+                            newCardR = concat( viewList.get(i).getCardR(), currentImage.getCardR());
+                            newCardL = concat(viewList.get(i).getCardL(), currentImage.getCardL());
+
+                        }
+
+                        if(checkCollisionLoc(currentImage, viewList.get(i)) == 0){
+
+                            Log.d("COLLISION ERROR", "0 returned");
+
+                        }
+
+                        myImgView = new KnotView(parent, newCardL, newCardR, "");
+                        myImgView.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT));
+                        myImgView.setOnTouchListener(parent);
+
+                        myImgView.setImageBitmap(Bitmap.createScaledBitmap(bitmapFinal, bmpW, bmpH, false));
                         ((RelativeLayout)(findViewById(R.id.root))).addView(myImgView);
+
                         myImgView.setX(500);
                         myImgView.setY(500);
 
                         viewList.add(myImgView);
+
+                        RelativeLayout rl = (RelativeLayout) (findViewById(R.id.root));
+
+                        rl.removeView(viewList.get(i));
+                        viewList.remove(viewList.get(i));
+
+                        rl.removeView(currentImage);
+                        viewList.remove(currentImage);
+
                     }
                 }
 
@@ -204,10 +296,47 @@ public class OpenGLES20Activity extends Activity implements View.OnTouchListener
         return true;
     }
 
-    public int[] checkCollisionLoc(ImageView moved, ImageView collided){
+    /*
+    returns 1 if collide left, 2 if top, 3 if right, 4 if bottom
+     */
+    public int checkCollisionLoc(ImageView moved, ImageView collided) {
+
+        int movedCenterXOnImage = moved.getWidth() / 2;
+        int movedCenterYOnImage = moved.getHeight() / 2;
+
+        int movedCenterXOfImageOnScreen = moved.getLeft() + movedCenterXOnImage;
+        int movedCenterYOfImageOnScreen = moved.getTop() + movedCenterYOnImage;
+
+        int collidedCenterXOnImage = collided.getWidth() / 2;
+        int collidedCenterYOnImage = collided.getHeight() / 2;
+
+        int collidedCenterXOfImageOnScreen = collided.getLeft() + collidedCenterXOnImage;
+        int collidedCenterYOfImageOnScreen = collided.getTop() + collidedCenterYOnImage;
 
 
-        return null;
+        if (movedCenterXOfImageOnScreen > collidedCenterXOfImageOnScreen) {
+            if (movedCenterYOfImageOnScreen > collidedCenterYOfImageOnScreen + 30) {
+                return 2;
+            } else if (movedCenterYOfImageOnScreen < collidedCenterYOfImageOnScreen - 30) {
+                return 4;
+            } else return 3;
+        } else {
+            if (movedCenterYOfImageOnScreen > collidedCenterYOfImageOnScreen + 30) {
+                return 2;
+            } else if (movedCenterYOfImageOnScreen < collidedCenterYOfImageOnScreen - 30) {
+                return 4;
+            } else return 1;
+
+        }
+    }
+
+    public int[] concat(int[] a, int[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+        int[] c= new int[aLen+bLen];
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+        return c;
     }
 
 }

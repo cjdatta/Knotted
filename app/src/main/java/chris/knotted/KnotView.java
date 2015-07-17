@@ -8,12 +8,28 @@ import android.widget.ImageView;
  */
 public class KnotView extends ImageView {
 
-    private int[] cardL, cardR;
+    //these are the left cardinalitis, and right cardinalities respectively
+    //i.e. the number of free "ports" on each side of the tile
+    private final int[] cardL, cardR;
+    //the resord of the algebraic representation
+    private final String algebraRep;
 
-    public KnotView(Activity activity, int[] cardL, int[] cardR){
+    public KnotView(Activity activity, int[] cardL, int[] cardR, String algebraRep){
         super(activity);
         this.cardL = cardL;
         this.cardR = cardR;
+        this.algebraRep = algebraRep;
     }
 
+    public String getAlgebraRep() {
+        return algebraRep;
+    }
+
+    public int[] getCardL() {
+        return cardL;
+    }
+
+    public int[] getCardR() {
+        return cardR;
+    }
 }

@@ -1,5 +1,6 @@
 package chris.knotted;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,12 +8,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import com.example.android.opengl.R;
+
 /**
  * Created by Chris on 06/07/2015.
  */
 public abstract class BitmapTools {
 
     public static Bitmap drawBeziers(int[] left, int[] right, int reqH){
+
+        //TODO: Modify for a 0, 0 size inputs
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -29,7 +34,7 @@ public abstract class BitmapTools {
         for (int i = 0; i<left.length; i++){
             canvas.drawLine(0, left[i], 100, right[i], paint);
         }
-    return Bitmap.createBitmap(bmp);
+        return Bitmap.createBitmap(bmp);
     }
 
     /* The following two methods were reused from
@@ -99,7 +104,7 @@ public abstract class BitmapTools {
         return cs;
     }
 
-    public Bitmap combineImagesVertical(Bitmap c, Bitmap s) {
+    public static Bitmap combineImagesVertical(Bitmap c, Bitmap s) {
         Bitmap cs = null;
 
         int width, height = 0;
